@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pelando_play/widgets/video_player_item.dart';
 import 'package:provider/provider.dart';
 import 'package:pelando_play/viewmodels/video_list_viewmodel.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,24 +36,15 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: viewModel.videos.length,
-              itemBuilder: (_, index) {
-                final video = viewModel.videos[index];
-                return ListTile(
-                  title: Text(video.title),
-                  subtitle: Text(video.chanel),
-                  leading: Image.network(video.thumb),
-                  trailing: IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      viewModel.removeVideo(video);
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
+  child: ListView.builder(
+    itemCount: viewModel.videos.length,
+    itemBuilder: (_, index) {
+      final video = viewModel.videos[index];
+      // Assumindo que você tenha o ID do vídeo do YouTube em `video.id`
+      return YoutubeVideoPlayer(videoId: video.id);
+    },
+  ),
+),
         ],
       ),
     );
