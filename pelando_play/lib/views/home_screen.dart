@@ -40,9 +40,27 @@ class HomeScreen extends StatelessWidget {
         itemCount: viewModel.videos.length,
         itemBuilder: (_, index) {
           final video = viewModel.videos[index];
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
+          return Dismissible(
+            key: Key(video.id), // UniqueKey() ou outra chave única que representa este item
+            direction: DismissDirection.endToStart, // Pode ser arrastado para o lado esquerdo
+            onDismissed: (direction) {
+              viewModel.removeVideo(video); // Remove o vídeo da lista no ViewModel
+              // Mostra uma snackbar ou outro feedback se necessário
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("${video.title} removido")),
+              );
+            },
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.delete, color: Colors.white),
+              ),
+            ),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: Column(
               children: [
                 YoutubeVideoPlayer(videoId: video.id),
                 Padding(
@@ -54,16 +72,17 @@ class HomeScreen extends StatelessWidget {
                         video.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall,
+                        style: Theme.of(context).textTheme.headline6,
                       ),
                       Text(
                         video.chanel,
-                        style: Theme.of(context).textTheme.labelSmall,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ],
                   ),
                 ),
               ],
+              ),
             ),
           );
         },
@@ -117,3 +136,4 @@ class HomeScreen extends StatelessWidget {
     return uri != null && uri.host.contains('youtube.com');
   }
 }
+
