@@ -37,13 +37,37 @@ class HomeScreen extends StatelessWidget {
           ),
           Expanded(
   child: ListView.builder(
-    itemCount: viewModel.videos.length,
-    itemBuilder: (_, index) {
-      final video = viewModel.videos[index];
-      // Assumindo que você tenha o ID do vídeo do YouTube em `video.id`
-      return YoutubeVideoPlayer(videoId: video.id);
-    },
-  ),
+        itemCount: viewModel.videos.length,
+        itemBuilder: (_, index) {
+          final video = viewModel.videos[index];
+          return Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                YoutubeVideoPlayer(videoId: video.id),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        video.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Text(
+                        video.chanel,
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
 ),
         ],
       ),
