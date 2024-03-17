@@ -7,10 +7,12 @@ import 'package:pelando_play/models/video_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController filterController = TextEditingController(); // Controlador para o campo de filtro
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<VideoListViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(title: Text('Pelando Play')),
       body: Column(
@@ -35,59 +37,78 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-  child: ListView.builder(
-        itemCount: viewModel.videos.length,
-        itemBuilder: (_, index) {
-          final video = viewModel.videos[index];
-          return Dismissible(
-            key: Key(video.id), // UniqueKey() ou outra chave única que representa este item
-            direction: DismissDirection.endToStart, // Pode ser arrastado para o lado esquerdo
-            onDismissed: (direction) {
-              viewModel.removeVideo(video); // Remove o vídeo da lista no ViewModel
-              // Mostra uma snackbar ou outro feedback se necessário
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${video.title} removido")),
-              );
-            },
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.delete, color: Colors.white),
-              ),
-            ),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-              children: [
-                YoutubeVideoPlayer(videoId: video.id),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        video.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                      Text(
-                        video.chanel,
-                        style: Theme.of(context).textTheme.subtitle1,
-                      ),
-                    ],
-                  ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: TextField(
+              controller: filterController,
+              onChanged: (value) {
+                // Chama o método de filtro toda vez que o texto do campo de filtro é alterado
+                viewModel.filterVideos(value.trim());
+              },
+              decoration: InputDecoration(
+                labelText: 'Filtrar por palavra-chave',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    filterController.clear(); // Limpa o campo de filtro
+                    viewModel.clearFilter(); // Remove o filtro
+                  },
                 ),
-              ],
               ),
             ),
-          );
-        },
-      ),
-),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: viewModel.filteredVideos.length, // Agora usamos a lista filtrada
+              itemBuilder: (_, index) {
+                final video = viewModel.filteredVideos[index]; // Usamos a lista filtrada
+                return Dismissible(
+                  key: Key(video.id), // Chave única para o Dismissible
+                  direction: DismissDirection.endToStart, // Arrastar para excluir da direita para a esquerda
+                  onDismissed: (direction) {
+                    viewModel.removeVideo(video); // Remove o vídeo da lista
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("${video.title} removido")),
+                    );
+                  },
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                  ),
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        YoutubeVideoPlayer(videoId: video.id),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                video.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
+                              Text(
+                                video.chanel,
+                                style: Theme.of(context).textTheme.subtitle1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -136,4 +157,3 @@ class HomeScreen extends StatelessWidget {
     return uri != null && uri.host.contains('youtube.com');
   }
 }
-
