@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
     final viewModel = Provider.of<VideoListViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Pelando Play')),
+      appBar: AppBar(title: Text('Playando')),
       body: Column(
         children: [
           Padding(
@@ -39,22 +39,32 @@ class HomeScreen extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextField(
-              controller: filterController,
-              onChanged: (value) {
-                // Chama o método de filtro toda vez que o texto do campo de filtro é alterado
-                viewModel.filterVideos(value.trim());
-              },
-              decoration: InputDecoration(
-                labelText: 'Filtrar por palavra-chave',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.clear),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: filterController,
+                    onChanged: (value) {
+                      // Chama o método de filtro toda vez que o texto do campo de filtro é alterado
+                      viewModel.filterVideos(value.trim());
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Filtrar por palavra-chave',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.filter_list),
                   onPressed: () {
-                    filterController.clear(); // Limpa o campo de filtro
-                    viewModel.clearFilter(); // Remove o filtro
+                    if (viewModel.isFiltered) {
+                      filterController.clear(); // Limpa o campo de filtro
+                      viewModel.clearFilter(); // Remove o filtro
+                    } else {
+                      viewModel.filterVideos(filterController.text.trim());
+                    }
                   },
                 ),
-              ),
+              ],
             ),
           ),
           Expanded(
