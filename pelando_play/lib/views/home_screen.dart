@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pelando_play/widgets/video_player_item.dart';
 import 'package:provider/provider.dart';
 import 'package:pelando_play/viewmodels/video_list_viewmodel.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:pelando_play/models/video_model.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -19,11 +18,17 @@ class HomeScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                labelText: 'Buscar vídeos ou inserir URL',
-                suffixIcon: IconButton(
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar vídeos ou inserir URL',
+                    ),
+                  ),
+                ),
+                IconButton(
                   icon: Icon(Icons.search),
                   onPressed: () {
                     String text = searchController.text.trim();
@@ -34,11 +39,11 @@ class HomeScreen extends StatelessWidget {
                     }
                   },
                 ),
-              ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
@@ -54,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.filter_list),
+                  icon: Icon(viewModel.isFiltered ? Icons.clear : Icons.filter_list),
                   onPressed: () {
                     if (viewModel.isFiltered) {
                       filterController.clear(); // Limpa o campo de filtro
