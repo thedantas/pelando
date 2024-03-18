@@ -6,14 +6,16 @@ import 'package:pelando_play/models/video_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();
-  final TextEditingController filterController = TextEditingController(); // Controlador para o campo de filtro
+  final TextEditingController filterController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<VideoListViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Playando')),
+      appBar: AppBar(
+        title: Text('Playando'),
+      ),
       body: Column(
         children: [
           Padding(
@@ -33,12 +35,12 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     String text = searchController.text.trim();
                     if (_isYoutubeUrl(text)) {
-                      String text = searchController.text.trim();
-      _addVideoByUrl(text, context, viewModel);
+                      _addVideoByUrl(text, context, viewModel);
                     } else {
                       _showSearchModal(context, text, viewModel);
                     }
                   },
+                  tooltip: 'Buscar',
                 ),
               ],
             ),
@@ -51,7 +53,6 @@ class HomeScreen extends StatelessWidget {
                   child: TextField(
                     controller: filterController,
                     onChanged: (value) {
-                      // Chama o método de filtro toda vez que o texto do campo de filtro é alterado
                       viewModel.filterVideos(value.trim());
                     },
                     decoration: InputDecoration(
@@ -63,26 +64,27 @@ class HomeScreen extends StatelessWidget {
                   icon: Icon(viewModel.isFiltered ? Icons.clear : Icons.filter_list),
                   onPressed: () {
                     if (viewModel.isFiltered) {
-                      filterController.clear(); // Limpa o campo de filtro
-                      viewModel.clearFilter(); // Remove o filtro
+                      filterController.clear();
+                      viewModel.clearFilter();
                     } else {
                       viewModel.filterVideos(filterController.text.trim());
                     }
                   },
+                  tooltip: viewModel.isFiltered ? 'Limpar filtro' : 'Aplicar filtro',
                 ),
               ],
             ),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: viewModel.filteredVideos.length, // Agora usamos a lista filtrada
+              itemCount: viewModel.filteredVideos.length,
               itemBuilder: (_, index) {
-                final video = viewModel.filteredVideos[index]; // Usamos a lista filtrada
+                final video = viewModel.filteredVideos[index];
                 return Dismissible(
-                  key: Key(video.id), // Chave única para o Dismissible
-                  direction: DismissDirection.endToStart, // Arrastar para excluir da direita para a esquerda
+                  key: Key(video.id),
+                  direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
-                    viewModel.removeVideo(video); // Remove o vídeo da lista
+                    viewModel.removeVideo(video);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("${video.title} removido")),
                     );
@@ -99,7 +101,10 @@ class HomeScreen extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       children: [
-                        YoutubeVideoPlayer(videoId: video.id),
+                        Semantics(
+                          child: YoutubeVideoPlayer(videoId: video.id),
+                          label: "Vídeo ${video.title}",
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -137,31 +142,34 @@ class HomeScreen extends StatelessWidget {
         future: viewModel.fetchVideos(query),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando resultados'));
           } else if (snapshot.hasError) {
-            return Center(child: Text("Erro ao buscar vídeos"));
+            return Center(child: Text("Erro ao buscar vídeos", semanticsLabel: 'Erro ao buscar vídeos'));
           } else if (snapshot.hasData) {
-            // Cria uma lista temporária com os resultados da busca
             final searchResults = snapshot.data as List<VideoModel>;
+            if (searchResults.isEmpty) {
+              return Center(child: Text('Nenhum vídeo encontrado', semanticsLabel: 'Nenhum vídeo encontrado'));
+            }
             return ListView.builder(
               itemCount: searchResults.length,
               itemBuilder: (_, index) {
                 final video = searchResults[index];
                 return ListTile(
-                  title: Text(video.title),
-                  leading: Image.network(video.thumb),
+                  title: Text(video.title, semanticsLabel: 'Vídeo encontrado: ${video.title}'),
+                  leading: Image.network(video.thumb, semanticLabel: 'Miniatura do vídeo'),
                   trailing: IconButton(
                     icon: Icon(Icons.add),
                     onPressed: () {
                       viewModel.addVideo(video);
-                      Navigator.pop(context); // Fecha o modal.
+                      Navigator.pop(context);
                     },
+                    tooltip: 'Adicionar vídeo', // Tooltip para acessibilidade.
                   ),
                 );
               },
             );
           } else {
-            return Center(child: Text('Nenhum vídeo encontrado'));
+            return Center(child: Text('Nenhum vídeo encontrado', semanticsLabel: 'Nenhum vídeo encontrado'));
           }
         },
       ),
@@ -177,17 +185,13 @@ class HomeScreen extends StatelessWidget {
     if (_isYoutubeUrl(url)) {
       viewModel.addVideoByUrl(url).catchError((e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro ao adicionar vídeo: ${e.toString()}")),
+          SnackBar(content: Text("Erro ao adicionar vídeo: ${e.toString()}", semanticsLabel: 'Erro ao adicionar vídeo')),
         );
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("URL inválida. Por favor, insira uma URL do YouTube válida.")),
+        SnackBar(content: Text("URL inválida. Por favor, insira uma URL do YouTube válida.", semanticsLabel: 'URL inválida fornecida')),
       );
     }
   }
-
-  // Atualize a chamada no IconButton para usar _addVideoByUrl
-
-
 }
