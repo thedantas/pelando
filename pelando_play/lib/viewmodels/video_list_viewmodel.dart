@@ -5,7 +5,8 @@ import 'dart:convert';
 
 /// ViewModel que gerencia o estado da lista de vídeos.
 class VideoListViewModel with ChangeNotifier {
-  final YoutubeService _youtubeService = YoutubeService();
+  YoutubeService _youtubeService;
+  VideoListViewModel(this._youtubeService);
   List<VideoModel> _videos = [];
   List<VideoModel> _filteredVideos = []; // Lista de vídeos filtrados
   String? _filterKeyword; // Palavra-chave de filtro
