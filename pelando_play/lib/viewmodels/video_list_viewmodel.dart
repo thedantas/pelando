@@ -39,11 +39,11 @@ class VideoListViewModel with ChangeNotifier {
     try {
       final video = await _youtubeService.fetchVideoByUrl(url);
       _videos.add(video);
-      _applyFilter(); // Aplica o filtro após adicionar o vídeo
+      _applyFilter();
       notifyListeners();
     } catch (e) {
       print('Erro ao adicionar vídeo: $e');
-      // Lide com o erro adequadamente.
+      throw Exception('Não foi possível adicionar o vídeo.');
     }
   }
 

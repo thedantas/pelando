@@ -33,7 +33,8 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     String text = searchController.text.trim();
                     if (_isYoutubeUrl(text)) {
-                      viewModel.addVideoByUrl(text);
+                      String text = searchController.text.trim();
+      _addVideoByUrl(text, context, viewModel);
                     } else {
                       _showSearchModal(context, text, viewModel);
                     }
@@ -169,6 +170,24 @@ class HomeScreen extends StatelessWidget {
 
   bool _isYoutubeUrl(String url) {
     Uri? uri = Uri.tryParse(url);
-    return uri != null && uri.host.contains('youtube.com');
+    return uri != null && uri.host.contains('youtube.com') && uri.path.contains('/watch') && uri.queryParameters.containsKey('v');
   }
+
+  void _addVideoByUrl(String url, BuildContext context, VideoListViewModel viewModel) {
+    if (_isYoutubeUrl(url)) {
+      viewModel.addVideoByUrl(url).catchError((e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao adicionar vídeo: ${e.toString()}")),
+        );
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("URL inválida. Por favor, insira uma URL do YouTube válida.")),
+      );
+    }
+  }
+
+  // Atualize a chamada no IconButton para usar _addVideoByUrl
+
+
 }
