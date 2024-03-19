@@ -78,5 +78,5 @@ Experimente o aplicativo Playando via TestFlight e contribua com seu feedback pa
 
 ## DEMO
 
-<img src="Assets/app.gif" width="300" height="200" />
+<img src="Assets/app.gif" width="300"/>
 
