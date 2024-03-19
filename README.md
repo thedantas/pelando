@@ -80,3 +80,4 @@ Experimente o aplicativo Playando via TestFlight e contribua com seu feedback pa
 
 <img src="Assets/app.gif" width="300"/>
 
+<img src="Assets/delete.gif" width="300"/>
